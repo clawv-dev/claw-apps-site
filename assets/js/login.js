@@ -152,6 +152,19 @@ document.getElementById('password-form').addEventListener('submit', (event) => {
   });
 });
 
+// Eye button inside the password box: switches the box between hidden dots and
+// readable text. The typed value is not changed, only how it is displayed.
+const passwordInput = document.getElementById('password');
+const passwordRevealButton = document.getElementById('password-reveal-button');
+passwordRevealButton.addEventListener('click', () => {
+  const isNowVisible = passwordInput.type === 'password';
+  passwordInput.type = isNowVisible ? 'text' : 'password';
+  const label = isNowVisible ? 'Hide password' : 'Show password';
+  passwordRevealButton.setAttribute('aria-label', label);
+  passwordRevealButton.setAttribute('aria-pressed', String(isNowVisible));
+  passwordRevealButton.title = label;
+});
+
 document.getElementById('setup-form').addEventListener('submit', (event) => {
   event.preventDefault();
   runStep(() => verifyAuthenticatorCode(document.getElementById('setup-code').value));

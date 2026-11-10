@@ -25,7 +25,9 @@ CNAME                      Tells GitHub Pages the custom domain
 All boxes share one Supabase project: the **TradeRanker** project (`wudphhhkegjwlxuhkfht`).
 Database migrations for it live in the `clawv-dev/trade-ranker` repo, not here — that repo owns
 the project's migration history. The to-do table is `public.todo_tasks`
-(`supabase/migrations/005_todo_tasks.sql` in that repo).
+(`supabase/migrations/005_todo_tasks.sql` in that repo). Deleting a task only sets its
+`deleted_at` column (`006_todo_tasks_deleted_at.sql`); it then shows in the page's "Deleted"
+section, tagged Finished or Not finished, where it can be restored or deleted forever.
 
 Security is enforced in the database: a row is only readable or writable by its owner, and — if
 the owner has set up an authenticator app — only in a session that passed the authenticator step. The checks in `session.js` just redirect

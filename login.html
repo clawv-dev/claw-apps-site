@@ -30,7 +30,25 @@
             required
           />
           <label for="password">Password</label>
-          <input id="password" type="password" autocomplete="current-password" required />
+          <!-- The eye button shows or hides the typed password (assets/js/login.js). -->
+          <div class="password-field">
+            <input id="password" type="password" autocomplete="current-password" required />
+            <button
+              type="button"
+              id="password-reveal-button"
+              class="password-reveal-button"
+              aria-label="Show password"
+              aria-pressed="false"
+              title="Show password"
+            >
+              <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+                <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z" />
+                <circle cx="12" cy="12" r="3" />
+                <!-- Drawn only while the password is visible (see style.css). -->
+                <line class="eye-slash" x1="4" y1="4" x2="20" y2="20" />
+              </svg>
+            </button>
+          </div>
           <button type="submit" class="primary-button">Continue</button>
         </form>
       </section>

@@ -193,6 +193,52 @@ a.app-box:focus-visible {
   margin-top: 8px;
 }
 
+/* Password box with the show/hide eye button sitting inside its right edge. */
+.password-field {
+  position: relative;
+}
+
+.password-field input {
+  /* Room for the eye button, so typed text never runs underneath it. */
+  padding-right: 44px;
+}
+
+.password-reveal-button {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--muted-text);
+}
+
+.password-reveal-button:hover {
+  color: var(--text);
+}
+
+.password-reveal-button svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* The slash through the eye appears only while the password is visible. */
+.password-reveal-button .eye-slash {
+  display: none;
+}
+
+.password-reveal-button[aria-pressed='true'] .eye-slash {
+  display: inline;
+}
+
 .authenticator-qr {
   display: block;
   width: 200px;
@@ -274,6 +320,26 @@ a.app-box:focus-visible {
 .is-done-list .task-title {
   color: var(--muted-text);
   text-decoration: line-through;
+}
+
+.is-deleted-list .task-title {
+  color: var(--muted-text);
+}
+
+/* "Finished" / "Not finished" tag on a row in the Deleted section. */
+.finished-label {
+  flex: none;
+  padding: 2px 8px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--muted-text);
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.finished-label.is-finished {
+  border-color: var(--accent);
+  color: var(--accent);
 }
 
 .empty-message {

@@ -1,10 +1,14 @@
-// To-do list page: add, rename, mark done, delete, and drag to reorder.
+// To-do list page: add, rename, mark done, delete, restore, and drag to reorder.
+// Deleting a task only marks it (deleted_at); it moves to the "Deleted" section,
+// where it can be restored or removed for good.
 // Data lives in the `todo_tasks` table of the shared Supabase project; the
 // database only returns rows owned by the signed-in user.
 import { supabaseClient, requireFullySignedIn, signOutAndGoToLogin } from './session.js';
 
 const LOGIN_PAGE_PATH = '../login.html';
 const TASKS_TABLE = 'todo_tasks';
+// Every read asks for the same columns, so a task object always has the same shape.
+const TASK_COLUMNS = 'id, title, is_done, sort_order, deleted_at';
 // Gap left between neighbouring tasks' sort_order values, so a dragged task can
 // be placed between two others by taking the midpoint without touching them.
 const SORT_ORDER_GAP = 1000;
@@ -15,14 +19,27 @@ const MINIMUM_SORT_ORDER_GAP = 0.001;
 const openList = document.getElementById('open-task-list');
 const doneList = document.getElementById('done-task-list');
 const doneSection = document.getElementById('done-section');
+const deletedList = document.getElementById('deleted-task-list');
+const deletedSection = document.getElementById('deleted-section');
 const emptyMessage = document.getElementById('empty-message');
 const statusMessage = document.getElementById('status-message');
 
-/** @type {{id: string, title: string, is_done: boolean, sort_order: number}[]} */
+// deleted_at is null for a live task, or the time it was deleted (ISO text).
+// A deleted task keeps its is_done value, so the Deleted section can say
+// whether it had been finished.
+/** @type {{id: string, title: string, is_done: boolean, sort_order: number, deleted_at: string | null}[]} */
 let tasks = [];
 
 function openTasksInOrder() {
-  return tasks.filter((task) => !task.is_done).sort((a, b) => a.sort_order - b.sort_order);
+  return tasks
+    .filter((task) => !task.deleted_at && !task.is_done)
+    .sort((a, b) => a.sort_order - b.sort_order);
+}
+
+function deletedTasksNewestFirst() {
+  return tasks
+    .filter((task) => task.deleted_at)
+    .sort((a, b) => new Date(b.deleted_at) - new Date(a.deleted_at));
 }
 
 function showStatus(text) {
@@ -49,7 +66,7 @@ async function saveOrReload(databaseCall, failureText) {
 async function loadTasks() {
   const { data, error } = await supabaseClient
     .from(TASKS_TABLE)
-    .select('id, title, is_done, sort_order')
+    .select(TASK_COLUMNS)
     .order('sort_order', { ascending: true });
   if (error) {
     showStatus(`Could not load tasks (${error.message})`);
@@ -65,7 +82,7 @@ async function addTask(title) {
   const { data, error } = await supabaseClient
     .from(TASKS_TABLE)
     .insert({ title, sort_order: lastSortOrder + SORT_ORDER_GAP })
-    .select('id, title, is_done, sort_order')
+    .select(TASK_COLUMNS)
     .single();
   if (error) {
     showStatus(`Could not add the task (${error.message})`);
@@ -110,8 +127,33 @@ async function renameTask(task, newTitle) {
   );
 }
 
+// Moves a task to the Deleted section. No "are you sure?" prompt, because it
+// can be restored from there.
 async function deleteTask(task) {
-  if (!window.confirm(`Delete "${task.title}"?`)) return;
+  task.deleted_at = new Date().toISOString();
+  renderTasks();
+  await saveOrReload(
+    supabaseClient.from(TASKS_TABLE).update({ deleted_at: task.deleted_at }).eq('id', task.id)
+      .select('id'),
+    'Could not delete the task',
+  );
+}
+
+// Puts a deleted task back where it was: the Done section if it was finished,
+// otherwise its old place in the open list (its sort_order was never changed).
+async function restoreTask(task) {
+  task.deleted_at = null;
+  renderTasks();
+  await saveOrReload(
+    supabaseClient.from(TASKS_TABLE).update({ deleted_at: null }).eq('id', task.id)
+      .select('id'),
+    'Could not restore the task',
+  );
+}
+
+// Removes a deleted task from the database. This cannot be undone, so it asks.
+async function deleteTaskForever(task) {
+  if (!window.confirm(`Delete "${task.title}" forever? This cannot be undone.`)) return;
   tasks = tasks.filter((other) => other.id !== task.id);
   renderTasks();
   await saveOrReload(
@@ -310,14 +352,43 @@ function buildTaskRow(task) {
   return row;
 }
 
+// A row in the Deleted section: title, whether it had been finished, and
+// buttons to restore it or remove it for good. No checkbox, rename or drag.
+function buildDeletedTaskRow(task) {
+  const row = document.createElement('li');
+  row.className = 'task-row';
+  row.dataset.taskId = task.id;
+
+  const title = document.createElement('span');
+  title.className = 'task-title';
+  title.textContent = task.title;
+
+  const finishedLabel = document.createElement('span');
+  finishedLabel.className = task.is_done ? 'finished-label is-finished' : 'finished-label';
+  finishedLabel.textContent = task.is_done ? 'Finished' : 'Not finished';
+
+  const restoreButton = makeButton('quiet-button', `Restore "${task.title}"`, 'Restore');
+  restoreButton.addEventListener('click', () => restoreTask(task));
+
+  const deleteForeverButton = makeButton('icon-button', `Delete "${task.title}" forever`, '✕');
+  deleteForeverButton.addEventListener('click', () => deleteTaskForever(task));
+
+  row.append(title, finishedLabel, restoreButton, deleteForeverButton);
+  return row;
+}
+
 function renderTasks() {
   const openTasks = openTasksInOrder();
-  const doneTasks = tasks.filter((task) => task.is_done);
+  const doneTasks = tasks.filter((task) => !task.deleted_at && task.is_done);
+  const deletedTasks = deletedTasksNewestFirst();
   openList.replaceChildren(...openTasks.map(buildTaskRow));
   doneList.replaceChildren(...doneTasks.map(buildTaskRow));
+  deletedList.replaceChildren(...deletedTasks.map(buildDeletedTaskRow));
   emptyMessage.hidden = openTasks.length > 0;
   doneSection.hidden = doneTasks.length === 0;
+  deletedSection.hidden = deletedTasks.length === 0;
   document.getElementById('done-count').textContent = String(doneTasks.length);
+  document.getElementById('deleted-count').textContent = String(deletedTasks.length);
 }
 
 // ---- Page start ------------------------------------------------------------
