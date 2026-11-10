@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="referrer" content="no-referrer" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src https://wudphhhkegjwlxuhkfht.supabase.co; base-uri 'none'; form-action 'self'"
+    />
+    <title>To-Do List</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="../assets/style.css" />
+  </head>
+  <body>
+    <!-- Hidden until assets/js/todo.js confirms the visitor is fully signed in. -->
+    <div id="page-content" hidden>
+      <header class="page-header">
+        <h1>To-Do List</h1>
+        <nav class="header-links">
+          <a href="../index.html">All apps</a>
+          <button type="button" id="sign-out-button" class="quiet-button">Sign out</button>
+        </nav>
+      </header>
+
+      <main class="todo-page">
+        <form id="add-task-form" class="add-task-form">
+          <label for="new-task-title" class="visually-hidden">New task</label>
+          <input
+            id="new-task-title"
+            type="text"
+            placeholder="Add a task"
+            maxlength="500"
+            autocomplete="off"
+          />
+          <button type="submit" class="primary-button">Add</button>
+        </form>
+
+        <p id="status-message" class="error-message" role="status"></p>
+
+        <ul id="open-task-list" class="task-list"></ul>
+        <p id="empty-message" class="empty-message" hidden>Nothing to do. Add a task above.</p>
+
+        <details id="done-section" class="done-section" hidden>
+          <summary>Done (<span id="done-count">0</span>)</summary>
+          <ul id="done-task-list" class="task-list is-done-list"></ul>
+        </details>
+      </main>
+    </div>
+
+    <script src="../assets/js/vendor/supabase-js-2.112.0.umd.js"></script>
+    <script type="module" src="../assets/js/todo.js"></script>
+  </body>
+</html>

@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="referrer" content="no-referrer" />
+    <!-- Only this site's own files may run, and data may only go to the shared Supabase project. -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src https://wudphhhkegjwlxuhkfht.supabase.co; base-uri 'none'; form-action 'self'"
+    />
+    <title>Apps</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="assets/style.css" />
+  </head>
+  <body>
+    <!-- Hidden until assets/js/landing.js confirms the visitor is fully signed in. -->
+    <div id="page-content" hidden>
+      <header class="page-header">
+        <h1>Apps</h1>
+        <button type="button" id="sign-out-button" class="quiet-button">Sign out</button>
+      </header>
+
+      <!-- One box per app. To add an app: copy a box, point it at the app's folder. -->
+      <main class="app-grid">
+        <a class="app-box" href="todo/">
+          <h2>To-Do List</h2>
+          <p>Add tasks, drag them into order, tick them off.</p>
+        </a>
+
+        <div class="app-box is-not-connected">
+          <h2>TradeRanker</h2>
+          <p>Not connected yet.</p>
+        </div>
+
+        <div class="app-box is-not-connected">
+          <h2>ClassAssistants</h2>
+          <p>Not connected yet.</p>
+        </div>
+      </main>
+    </div>
+
+    <script src="assets/js/vendor/supabase-js-2.112.0.umd.js"></script>
+    <script type="module" src="assets/js/landing.js"></script>
+  </body>
+</html>

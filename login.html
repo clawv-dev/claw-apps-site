@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="referrer" content="no-referrer" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src https://wudphhhkegjwlxuhkfht.supabase.co; base-uri 'none'; form-action 'self'"
+    />
+    <title>Sign in</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="assets/style.css" />
+  </head>
+  <body>
+    <main class="login-card">
+      <h1>Sign in</h1>
+
+      <!-- Step 1: email and password. -->
+      <section id="password-view" hidden>
+        <form id="password-form">
+          <label for="email">Email</label>
+          <input id="email" type="email" autocomplete="username" required />
+          <label for="password">Password</label>
+          <input id="password" type="password" autocomplete="current-password" required />
+          <button type="submit" class="primary-button">Continue</button>
+        </form>
+      </section>
+
+      <!-- Step 2, first sign-in only: connect an authenticator app. -->
+      <section id="authenticator-setup-view" hidden>
+        <p>
+          Set up your authenticator app. Scan this code with the app, then type the 6-digit code it
+          shows.
+        </p>
+        <img id="authenticator-qr" class="authenticator-qr" alt="QR code for your authenticator app" />
+        <p class="small-print">
+          Can't scan? Enter this key in the app instead:
+          <code id="authenticator-secret"></code>
+        </p>
+        <form id="setup-form">
+          <label for="setup-code">6-digit code</label>
+          <input
+            id="setup-code"
+            type="text"
+            inputmode="numeric"
+            autocomplete="one-time-code"
+            pattern="[0-9]{6}"
+            maxlength="6"
+            required
+          />
+          <button type="submit" class="primary-button">Finish setup</button>
+        </form>
+        <button type="button" class="quiet-button start-over-button">Start over</button>
+      </section>
+
+      <!-- Step 2, every later sign-in: code from the authenticator app. -->
+      <section id="authenticator-code-view" hidden>
+        <p>Enter the 6-digit code from your authenticator app.</p>
+        <form id="code-form">
+          <label for="login-code">6-digit code</label>
+          <input
+            id="login-code"
+            type="text"
+            inputmode="numeric"
+            autocomplete="one-time-code"
+            pattern="[0-9]{6}"
+            maxlength="6"
+            required
+          />
+          <button type="submit" class="primary-button">Sign in</button>
+        </form>
+        <button type="button" class="quiet-button start-over-button">Start over</button>
+      </section>
+
+      <p id="login-error" class="error-message" role="alert"></p>
+    </main>
+
+    <script src="assets/js/vendor/supabase-js-2.112.0.umd.js"></script>
+    <script type="module" src="assets/js/login.js"></script>
+  </body>
+</html>

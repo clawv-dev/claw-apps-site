@@ -1,0 +1,282 @@
+/* One stylesheet for the landing page, login page and to-do list.
+   Colours are variables so light and dark mode share every rule below. */
+:root {
+  --page-background: #f5f6f8;
+  --card-background: #ffffff;
+  --text: #1c1f26;
+  --muted-text: #5f6673;
+  --border: #d9dde4;
+  --accent: #3b5bdb;
+  --accent-text: #ffffff;
+  --danger: #c92a2a;
+  --drag-highlight: #e7ecff;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --page-background: #14161a;
+    --card-background: #1e2127;
+    --text: #e8eaee;
+    --muted-text: #9aa1ad;
+    --border: #353a44;
+    --accent: #748ffc;
+    --accent-text: #10131a;
+    --danger: #ff8787;
+    --drag-highlight: #2a3152;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 16px;
+  background: var(--page-background);
+  color: var(--text);
+  font: 16px/1.5 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+h1 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+h2 {
+  margin: 0 0 4px;
+  font-size: 1.125rem;
+}
+
+a {
+  color: var(--accent);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+/* ---- Shared layout ---- */
+
+.page-header,
+.app-grid,
+.todo-page {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0 20px;
+}
+
+.header-links {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* ---- Buttons and inputs ---- */
+
+input[type='text'],
+input[type='email'],
+input[type='password'] {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--card-background);
+  color: var(--text);
+  font: inherit;
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+}
+
+.primary-button {
+  padding: 10px 18px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--accent);
+  color: var(--accent-text);
+  font-weight: 600;
+}
+
+.quiet-button {
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted-text);
+}
+
+.error-message {
+  min-height: 1.5em;
+  margin: 8px 0;
+  color: var(--danger);
+}
+
+.small-print {
+  color: var(--muted-text);
+  font-size: 0.875rem;
+  overflow-wrap: anywhere;
+}
+
+/* ---- Landing page ---- */
+
+.app-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.app-box {
+  display: block;
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--card-background);
+  color: var(--text);
+  text-decoration: none;
+}
+
+.app-box p {
+  margin: 0;
+  color: var(--muted-text);
+}
+
+a.app-box:hover,
+a.app-box:focus-visible {
+  border-color: var(--accent);
+}
+
+.app-box.is-not-connected {
+  opacity: 0.55;
+}
+
+/* ---- Login page ---- */
+
+.login-card {
+  max-width: 380px;
+  margin: 10vh auto 0;
+  padding: 24px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--card-background);
+}
+
+.login-card form {
+  display: grid;
+  gap: 8px;
+  margin: 16px 0 12px;
+}
+
+.login-card .primary-button {
+  margin-top: 8px;
+}
+
+.authenticator-qr {
+  display: block;
+  width: 200px;
+  height: 200px;
+  margin: 0 auto;
+  /* QR codes need a light background to scan, including in dark mode. */
+  background: #ffffff;
+  padding: 8px;
+  border-radius: 8px;
+}
+
+/* ---- To-do list ---- */
+
+.add-task-form {
+  display: flex;
+  gap: 8px;
+}
+
+.task-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.task-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--card-background);
+}
+
+.task-row.is-dragging {
+  border-color: var(--accent);
+  background: var(--drag-highlight);
+}
+
+.drag-handle {
+  padding: 6px 8px;
+  border: 0;
+  background: transparent;
+  color: var(--muted-text);
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: grab;
+  /* Without this, a touch drag on the handle scrolls the page instead. */
+  touch-action: none;
+}
+
+.task-checkbox {
+  width: 22px;
+  height: 22px;
+  flex: none;
+  accent-color: var(--accent);
+}
+
+.task-title,
+.task-title-input {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.icon-button {
+  flex: none;
+  padding: 6px 8px;
+  border: 0;
+  background: transparent;
+  color: var(--muted-text);
+}
+
+.icon-button:hover {
+  color: var(--text);
+}
+
+.is-done-list .task-title {
+  color: var(--muted-text);
+  text-decoration: line-through;
+}
+
+.empty-message {
+  color: var(--muted-text);
+}
+
+.done-section {
+  margin-top: 24px;
+}
+
+.done-section summary {
+  margin-bottom: 8px;
+  color: var(--muted-text);
+  cursor: pointer;
+}
