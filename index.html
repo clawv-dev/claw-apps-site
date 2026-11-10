@@ -22,6 +22,12 @@
         <button type="button" id="sign-out-button" class="quiet-button">Sign out</button>
       </header>
 
+      <!-- Shown by landing.js only while no authenticator app is set up. -->
+      <p id="authenticator-prompt" class="notice" hidden>
+        Sign-in currently uses your password only.
+        <a href="login.html?setup=1">Set up an authenticator app</a> to add a second step.
+      </p>
+
       <!-- One box per app. To add an app: copy a box, point it at the app's folder. -->
       <main class="app-grid">
         <a class="app-box" href="todo/">

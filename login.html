@@ -28,7 +28,7 @@
         </form>
       </section>
 
-      <!-- Step 2, first sign-in only: connect an authenticator app. -->
+      <!-- Optional, opened from the landing page (login.html?setup=1): connect an authenticator app. -->
       <section id="authenticator-setup-view" hidden>
         <p>
           Set up your authenticator app. Scan this code with the app, then type the 6-digit code it
@@ -52,10 +52,10 @@
           />
           <button type="submit" class="primary-button">Finish setup</button>
         </form>
-        <button type="button" class="quiet-button start-over-button">Start over</button>
+        <a href="index.html">Not now</a>
       </section>
 
-      <!-- Step 2, every later sign-in: code from the authenticator app. -->
+      <!-- Step 2, only when an authenticator is set up: code from the app. -->
       <section id="authenticator-code-view" hidden>
         <p>Enter the 6-digit code from your authenticator app.</p>
         <form id="code-form">

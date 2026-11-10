@@ -1,9 +1,10 @@
 // Sign-in state shared by every page on the site.
 //
-// "Fully signed in" means password AND authenticator-app code (Supabase calls
-// this assurance level "aal2"). The database rules for the to-do list require
-// aal2 too, so this check is a convenience for redirecting — the real
-// enforcement is in the database, not here.
+// The authenticator app is OPTIONAL. "Fully signed in" means: password, plus
+// the authenticator code IF an authenticator has been set up for the account.
+// (Supabase calls password-only "aal1" and password+code "aal2".) The database
+// rules for the to-do list apply the same test, so this check is a convenience
+// for redirecting — the real enforcement is in the database, not here.
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from './config.js';
 
 // window.supabase is defined by assets/js/vendor/supabase-js-*.umd.js, which
@@ -12,7 +13,6 @@ export const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABAS
 
 export const SIGN_IN_STATE = Object.freeze({
   SIGNED_OUT: 'signed_out',
-  NEEDS_AUTHENTICATOR_SETUP: 'needs_authenticator_setup',
   NEEDS_AUTHENTICATOR_CODE: 'needs_authenticator_code',
   FULLY_SIGNED_IN: 'fully_signed_in',
 });
@@ -25,10 +25,16 @@ export async function getSignInState() {
     await supabaseClient.auth.mfa.getAuthenticatorAssuranceLevel();
   if (error) return SIGN_IN_STATE.SIGNED_OUT;
 
-  if (levels.currentLevel === 'aal2') return SIGN_IN_STATE.FULLY_SIGNED_IN;
-  // nextLevel is 'aal2' only when a verified authenticator already exists.
-  if (levels.nextLevel === 'aal2') return SIGN_IN_STATE.NEEDS_AUTHENTICATOR_CODE;
-  return SIGN_IN_STATE.NEEDS_AUTHENTICATOR_SETUP;
+  // nextLevel is 'aal2' only when a verified authenticator exists. If one does
+  // and this session has not passed the code step yet, the code is still owed.
+  const codeStillOwed = levels.nextLevel === 'aal2' && levels.currentLevel !== 'aal2';
+  return codeStillOwed ? SIGN_IN_STATE.NEEDS_AUTHENTICATOR_CODE : SIGN_IN_STATE.FULLY_SIGNED_IN;
+}
+
+// True when the signed-in account has a working authenticator app set up.
+export async function hasAuthenticatorSetUp() {
+  const { data, error } = await supabaseClient.auth.mfa.listFactors();
+  return !error && data.totp.length > 0;
 }
 
 // Call at the top of every protected page. Resolves to true when the visitor

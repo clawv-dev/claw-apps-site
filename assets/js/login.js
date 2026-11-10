@@ -1,7 +1,14 @@
-// Login page: password step, then authenticator-app step.
-// First sign-in ever shows the authenticator SETUP view (QR code); every later
-// sign-in shows the 6-digit CODE view.
-import { supabaseClient, getSignInState, signOutEverywhere, SIGN_IN_STATE } from './session.js';
+// Login page: password step, then the authenticator-app CODE step if the
+// account has an authenticator set up (it is optional).
+// Opening this page as login.html?setup=1 while signed in shows the
+// authenticator SETUP view (QR code) — the landing page links here.
+import {
+  supabaseClient,
+  getSignInState,
+  hasAuthenticatorSetUp,
+  signOutEverywhere,
+  SIGN_IN_STATE,
+} from './session.js';
 
 const LANDING_PAGE_PATH = 'index.html';
 // Supabase answers 400 for a wrong email/password; anything else (network
@@ -46,12 +53,15 @@ async function runStep(step) {
 
 async function showViewForCurrentState() {
   const state = await getSignInState();
+  const setupWasRequested = new URLSearchParams(window.location.search).has('setup');
   if (state === SIGN_IN_STATE.FULLY_SIGNED_IN) {
-    window.location.replace(LANDING_PAGE_PATH);
+    if (setupWasRequested && !(await hasAuthenticatorSetUp())) {
+      await startAuthenticatorSetupStep();
+    } else {
+      window.location.replace(LANDING_PAGE_PATH);
+    }
   } else if (state === SIGN_IN_STATE.NEEDS_AUTHENTICATOR_CODE) {
     await startAuthenticatorCodeStep();
-  } else if (state === SIGN_IN_STATE.NEEDS_AUTHENTICATOR_SETUP) {
-    await startAuthenticatorSetupStep();
   } else {
     showOnly(passwordView);
   }
@@ -86,8 +96,8 @@ async function startAuthenticatorSetupStep() {
     friendlyName: `Authenticator app ${Date.now()}`,
   });
   if (error) {
-    await signOutEverywhere();
-    showOnly(passwordView);
+    // Setup is optional, so stay signed in; just report why it did not start.
+    showOnly(setupView);
     showError(`Could not start authenticator setup: ${error.message}`);
     return;
   }

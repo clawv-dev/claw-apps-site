@@ -1,6 +1,6 @@
 # claw-apps-site
 
-Private landing page for Adam's apps at **https://apps.clawventures.llc** — one box per app, behind a login that needs a password and an authenticator-app code.
+Private landing page for Adam's apps at **https://apps.clawventures.llc** — one box per app, behind a password login. An authenticator app (second step) is optional and can be switched on from the landing page; once set up, it is required at every sign-in.
 
 Plain HTML, CSS and JavaScript. No build step, no framework. Hosted on GitHub Pages from the `main` branch.
 
@@ -8,7 +8,7 @@ Plain HTML, CSS and JavaScript. No build step, no framework. Hosted on GitHub Pa
 
 ```
 index.html                 Landing page — the app boxes
-login.html                 Sign-in (password, then authenticator app)
+login.html                 Sign-in (password, then authenticator code if set up); ?setup=1 = authenticator setup
 todo/index.html            To-Do List app
 assets/style.css           One stylesheet for every page
 assets/js/config.js        Supabase project URL + public anon key
@@ -27,8 +27,8 @@ Database migrations for it live in the `clawv-dev/trade-ranker` repo, not here �
 the project's migration history. The to-do table is `public.todo_tasks`
 (`supabase/migrations/005_todo_tasks.sql` in that repo).
 
-Security is enforced in the database: a row is only readable or writable by its owner, and only
-in a session that passed the authenticator-app step. The checks in `session.js` just redirect
+Security is enforced in the database: a row is only readable or writable by its owner, and — if
+the owner has set up an authenticator app — only in a session that passed the authenticator step. The checks in `session.js` just redirect
 people to the login page; they are not the protection.
 
 This repo is public. Never commit a secret here — the anon key in `config.js` is public by design.
