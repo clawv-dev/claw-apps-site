@@ -20,8 +20,15 @@
       <!-- Step 1: email and password. -->
       <section id="password-view" hidden>
         <form id="password-form">
-          <label for="email">Email</label>
-          <input id="email" type="email" autocomplete="username" required />
+          <label for="username">Username</label>
+          <input
+            id="username"
+            type="text"
+            autocomplete="username"
+            autocapitalize="none"
+            spellcheck="false"
+            required
+          />
           <label for="password">Password</label>
           <input id="password" type="password" autocomplete="current-password" required />
           <button type="submit" class="primary-button">Continue</button>

@@ -15,6 +15,20 @@ const LANDING_PAGE_PATH = 'index.html';
 // down, rate limit) is a different problem and gets its real message shown.
 const WRONG_CREDENTIALS_STATUS = 400;
 
+// People sign in with a short username, but Supabase only knows email
+// addresses. Each account's email is "apps-<username>@clawventures.llc" (mail
+// to it lands in the clawventures.llc catch-all inbox), so the username
+// "burgess" is the account apps-burgess@clawventures.llc. Typing a full email
+// address still works, for accounts that were not created with that pattern.
+const ACCOUNT_EMAIL_PREFIX = 'apps-';
+const ACCOUNT_EMAIL_DOMAIN = 'clawventures.llc';
+
+function emailForUsername(typedUsername) {
+  const username = typedUsername.trim().toLowerCase();
+  if (username.includes('@')) return username;
+  return `${ACCOUNT_EMAIL_PREFIX}${username}@${ACCOUNT_EMAIL_DOMAIN}`;
+}
+
 const passwordView = document.getElementById('password-view');
 const setupView = document.getElementById('authenticator-setup-view');
 const codeView = document.getElementById('authenticator-code-view');
@@ -123,13 +137,13 @@ document.getElementById('password-form').addEventListener('submit', (event) => {
   event.preventDefault();
   runStep(async () => {
     const { error } = await supabaseClient.auth.signInWithPassword({
-      email: document.getElementById('email').value.trim(),
+      email: emailForUsername(document.getElementById('username').value),
       password: document.getElementById('password').value,
     });
     if (error) {
       showError(
         error.status === WRONG_CREDENTIALS_STATUS
-          ? 'Email or password is not correct.'
+          ? 'Username or password is not correct.'
           : `Could not sign in: ${error.message}`,
       );
       return;

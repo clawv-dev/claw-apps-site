@@ -33,6 +33,13 @@ people to the login page; they are not the protection.
 
 This repo is public. Never commit a secret here — the anon key in `config.js` is public by design.
 
+## Accounts and usernames
+
+People sign in with a username. Supabase only knows emails, so `login.js` turns the username
+`name` into `apps-name@clawventures.llc`. To add an account: in the Supabase dashboard create a
+user with that email (public sign-up is off). The family account is username `burgess`
+(`apps-burgess@clawventures.llc`); it owns the to-do list and nothing else.
+
 ## Adding an app box
 
 1. Give the app its own folder (like `todo/`) and its own table-name prefix in the database (like `todo_`).
